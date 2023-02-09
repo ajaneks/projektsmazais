@@ -2,27 +2,36 @@ from tkinter import *
 from tkinter import ttk
 from tkcalendar import Calendar
 import datetime
+import customtkinter
 
-# Create Object
-root = Tk()
+# Objekta izveide
+# root = Tk()
+root = customtkinter.CTk()
 
-# Set geometry
-root.geometry("400x400")
 
-# Get today's date
+root.geometry("400x600")
+
+customtkinter.set_appearance_mode("system")  # Modes: system (default), light, dark
+customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
+
+
+# Iegut sodienas datumu
 today = datetime.datetime.today()
 
-# Add Notebook
 notebook = ttk.Notebook(root)
 notebook.pack(fill = BOTH, expand = True)
 
-# Add Calendar Tab
+# Kalendara tabs
 calendar_tab = ttk.Frame(notebook)
 notebook.add(calendar_tab, text = "Calendar")
 
-# Add Comments Tab
+# Komentaru tabs
 comments_tab = ttk.Frame(notebook)
 notebook.add(comments_tab, text = "Comments")
+
+notebook.tab(0, state="hidden")
+notebook.tab(1, state="hidden")
+
 
 def grad_date(event):
     selected_date = cal.get_date()
@@ -33,12 +42,12 @@ def grad_date(event):
     date.config(text = "Selected Date is: " + selected_date + "\nComment: " + comment)
 
 
-# Add Calendar
+# Kalendara pievienosana
 cal = Calendar(calendar_tab, selectmode = 'day', year = today.year, month = today.month, day = today.day)
 cal.pack(pady = 20)
 cal.bind("<<CalendarSelected>>", grad_date)
 
-# Dictionary to store date and comment
+# Komentaru un datumu vieta
 comments = {}
 
 
@@ -59,9 +68,20 @@ def remove_comment():
     else:
         date.config(text = "No comment to remove for: " + selected_date)
 
-# Add Button and Label
-Button(calendar_tab, text = "Add Comment", command = add_comment).pack(pady = 20)
-Button(calendar_tab, text = "Remove Comment", command = remove_comment).pack(pady = 20)
+# Pogas
+customtkinter.CTkButton(calendar_tab, text = "Add Comment", command = add_comment).pack(pady = 20)
+customtkinter.CTkButton(calendar_tab, text = "Remove Comment", command = remove_comment).pack(pady = 20)
+
+segemented_button_var = customtkinter.StringVar(value="Kalendārs")
+segemented_button_var = customtkinter.StringVar(value="Plāni")  # set initial value
+
+segemented_button = customtkinter.CTkSegmentedButton(master=root,
+                                                     values=["Kalendārs","Plāni"],
+                                                     variable=segemented_button_var)
+segemented_button.pack(padx=20, pady=10)
+
+# button = customtkinter.CTkButton(master=root, text="Get Date", command=grad_date)
+# button.place(relx=0.5, rely=0.5)
 
 comment_entry = Entry(calendar_tab)
 comment_entry.pack(pady = 20)
@@ -69,7 +89,7 @@ comment_entry.pack(pady = 20)
 date = Label(calendar_tab, text = "")
 date.pack(pady = 20)
 
-# Add Listbox to display comments
+# Kaste, kur uzradas komentari
 def display_comments():
     comments_list.delete(0, END)
     for date, comment in comments.items():
@@ -78,5 +98,15 @@ def display_comments():
 comments_list = Listbox(comments_tab)
 comments_list.pack(fill = BOTH, expand = True)
 
-# Execute Tkinter
+
+def switch_tab(event):
+    current_tab = notebook.index(notebook.select())
+    if current_tab == 0:
+        notebook.select(comments_tab)
+    else:
+        notebook.select(calendar_tab)
+
+root.bind("<Button-1>", switch_tab)
+
+
 root.mainloop()
