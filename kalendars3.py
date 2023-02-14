@@ -5,8 +5,6 @@ import datetime
 import customtkinter
 import json
 
-
-
 # Objekta izveide
 root = customtkinter.CTk()
 root.title("Plānotājs")
@@ -16,10 +14,8 @@ root.geometry("500x600")
 customtkinter.set_appearance_mode("system")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
-
 # Iegut sodienas datumu
 today = datetime.datetime.today()
-
 
 def grad_date(event):
     selected_date = cal.get_date()
@@ -32,7 +28,6 @@ def grad_date(event):
         # Set default background color for dates without comments
         cal.tag_config(selected_date, background='white')
     date.config(text = "Izvēlētais datums ir: " + selected_date + "\nPlāni: " + comment)
-
 
 # Create the calendar
 calendar_frame = Frame(root)
@@ -103,10 +98,6 @@ def remove_comment():
     else:
         date.config(text = "Šajā datumā nav plānu: " + selected_date)
 
-
-
-
-
 # Pogas
 customtkinter.CTkButton(calendar_frame, text = "Pievienot plānu", command = add_comment).pack(pady = 20)
 customtkinter.CTkButton(calendar_frame, text = "Dzēst plānu", command = remove_comment).pack(pady = 20)
@@ -116,7 +107,5 @@ comment_entry.pack(pady = 20)
 
 date = Label(calendar_frame, text = "")
 date.pack(pady = 20)
-
-
 
 root.mainloop()
