@@ -4,13 +4,12 @@ from tkcalendar import Calendar
 import datetime
 import customtkinter
 
-
 # Objekta izveide
 root = customtkinter.CTk()
 root.title("Plānotājs")
-
 root.geometry("500x600")
 
+#Customtkinter stils
 customtkinter.set_appearance_mode("light")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
@@ -29,7 +28,7 @@ def grad_date(event):
         cal.tag_config(selected_date, background='white')
     date.config(text = "Izvēlētais datums ir: " + selected_date + "\nPlāni: " + comment)
 
-# Kalendāra izveide, izskata mainīšana
+# Kalendāra izveide, stila mainīšana
 calendar_frame = Frame(root, bg='#f1f1f1', bd=2, relief='groove')
 calendar_frame.pack(side=LEFT, fill=BOTH, expand=True, padx=10, pady=10)
 
@@ -40,8 +39,6 @@ cal = Calendar(calendar_frame, selectmode='day', year=today.year, month=today.mo
 cal.pack(pady=20)
 
 cal.bind("<<CalendarSelected>>", grad_date)
-
-
 
 # Create the comments section
 comments_frame = Frame(root)
