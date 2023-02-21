@@ -1,62 +1,44 @@
-import tkinter as tk
-from tkinter import messagebox
-import random
+from tkinter import *
+from difflib import SequenceMatcher
 
-# list of meals
-meals = ["Chicken Fajitas", "Pasta Carbonara", "Beef Stir Fry", "Vegetable Curry", "Tofu Scramble"]
+# List of ingredients and recipes
+INGREDIENTS = ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter']
+RECIPES = {
+    'Pancakes': ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter'],
+    'Omelette': ['eggs', 'butter', 'salt', 'milk'],
+    'Sugar Cookies': ['flour', 'sugar', 'butter', 'eggs']
+}
 
-# function to generate meal plan
-def generate_meal_plan():
-    # get user input for number of meals and days
-    num_meals = num_meals_entry.get()
-    num_days = num_days_entry.get()
+# Function to check compatible recipes
+def check_recipes():
+    available_ingredients = [INGREDIENTS[i] for i in range(len(INGREDIENTS)) if ingredient_vars[i].get() == 1]
+    compatible_recipes = []
+    for recipe, ingredients in RECIPES.items():
+        if set(ingredients).issubset(set(available_ingredients)):
+            compatible_recipes.append(recipe)
+    if compatible_recipes:
+        recipe_label.config(text=f"Compatible recipes: {', '.join(compatible_recipes)}")
+    else:
+        closest_match = max(RECIPES.keys(), key=lambda x: SequenceMatcher(None, x, ''.join(available_ingredients)).ratio())
+        missing_ingredients = list(set(RECIPES[closest_match]) - set(available_ingredients))
+        recipe_label.config(text=f"No compatible recipes found. Closest match: {closest_match}. Missing ingredients: {', '.join(missing_ingredients)}")
 
-    # validate user input
-    if not num_meals.isdigit() or not num_days.isdigit():
-        messagebox.showerror("Error", "Please enter valid numbers for meals and days")
-        return
+# Tkinter GUI
+root = Tk()
+root.title("Recipe Finder")
 
-    num_meals = int(num_meals)
-    num_days = int(num_days)
+# Ingredient checkboxes
+ingredient_vars = []
+for i in range(len(INGREDIENTS)):
+    var = IntVar()
+checkbox = Checkbutton(root, text=INGREDIENTS[i], variable=var)
+checkbox.grid(row=i, column=0, sticky=W)
+ingredient_vars.append(var)
 
-    if num_meals < 1 or num_days < 1:
-        messagebox.showerror("Error", "Please enter a positive number for meals and days")
-        return
+button = Button(root, text="Check Recipes", command=check_recipes)
+button.grid(row=len(INGREDIENTS), column=0, columnspan=2)
 
-    # clear previous meal plan
-    meal_plan_list.delete(0, tk.END)
-
-    # generate meal plan
-    for day in range(1, num_days+1):
-        meal_plan_list.insert(tk.END, f"Day {day}:")
-        for i in range(num_meals):
-            meal = random.choice(meals)
-            meal_plan_list.insert(tk.END, f"  {i+1}. {meal}")
-
-# create main window
-root = tk.Tk()
-root.title("Meal Planner")
-
-# create labels
-tk.Label(root, text="Number of Meals per Day:").grid(row=0, column=0, pady=5, padx=10, sticky="w")
-tk.Label(root, text="Number of Days:").grid(row=1, column=0, pady=5, padx=10, sticky="w")
-
-# create entry fields
-num_meals_entry = tk.Entry(root, width=5)
-num_meals_entry.grid(row=0, column=1, pady=5, padx=10)
-num_days_entry = tk.Entry(root, width=5)
-num_days_entry.grid(row=1, column=1, pady=5, padx=10)
-
-# create meal plan listbox
-meal_plan_list = tk.Listbox(root, height=10, width=50)
-meal_plan_list.grid(row=2, column=0, columnspan=2, pady=10, padx=10)
-
-# create generate button
-generate_button = tk.Button(root, text="Generate Meal Plan", command=generate_meal_plan)
-generate_button.grid(row=3, column=0, pady=10, padx=10, sticky="w")
-
-# create exit button
-exit_button = tk.Button(root, text="Exit", command=root.quit)
-exit_button.grid(row=3, column=1, pady=10, padx=10, sticky="e")
+recipe_label = Label(root, text="")
+recipe_label.grid(row=len(INGREDIENTS)+1, column=0, columnspan=2)
 
 root.mainloop()
