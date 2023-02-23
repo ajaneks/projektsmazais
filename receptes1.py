@@ -2,12 +2,19 @@
 
 from tkinter import *
 from difflib import SequenceMatcher 
+from customtkinter import *
 
-INGREDIENTS = ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter']
+INGREDIENTS = ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter', 'cocoa powder', 'baking powder', 'vanilla extract', 'spaghetti', 'pancetta', 'parmigiano reggiano', 'pecorino romano', 'black pepper', 'onion', 'garlic', 'chicken or vegetable broth', 'olive oil', 'sugar', 'pepper', 'whole chicken', 'lemon', 'thyme', 'tomatoes', 'bananas', 'baking soda']
+
 RECIPES = {
     'Pancakes': ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter'],
     'Omelette': ['eggs', 'butter', 'salt', 'milk'],
-    'Sugar Cookies': ['flour', 'sugar', 'butter', 'eggs']
+    'Sugar Cookies': ['flour', 'sugar', 'butter', 'eggs'],
+    'Chocolate Cake': ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter', 'cocoa powder', 'baking powder', 'vanilla extract'],
+    'Spaghetti Carbonara': ['spaghetti', 'pancetta', 'eggs', 'parmigiano reggiano', 'pecorino romano', 'black pepper', 'salt'],
+    'Banana Bread': ['flour', 'sugar', 'butter', 'bananas', 'eggs', 'baking soda', 'vanilla extract'],
+    'Tomato Soup': ['tomatoes', 'onion', 'garlic', 'chicken or vegetable broth', 'olive oil', 'sugar', 'salt', 'pepper'],
+    'Roast Chicken': ['whole chicken', 'butter', 'garlic', 'lemon', 'salt', 'pepper', 'thyme'],
 }
 
 def check_recipes():
@@ -41,6 +48,7 @@ recipe_label = Label(root, text="")
 recipe_label.grid(row=len(INGREDIENTS)+1, column=0, columnspan=2)
 
 root.mainloop()
+
 
 
 #pievienot tabu, kur pievienot savas receptes un ingredientes
