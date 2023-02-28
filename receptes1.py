@@ -30,9 +30,44 @@ def check_recipes():
         missing_ingredients = set(RECIPES[closest_match]) - set(available_ingredients)
         recipe_label.config(text=f"No compatible recipes found. \nClosest match: {closest_match}. \nMissing ingredients: {', '.join(missing_ingredients)}")
 
+    
+
+
 root = Tk()
 root.title("Recipe Finder")
 root.geometry ("500x300")
+
+def add_recipe_window():
+    add_recipe = Toplevel(root)
+    add_recipe.title("Add Recipe")
+    add_recipe.geometry("400x300")
+
+    recipe_name_label = Label(add_recipe, text="Recipe Name:")
+    recipe_name_label.pack()
+
+    recipe_name_entry = Entry(add_recipe)
+    recipe_name_entry.pack()
+
+    ingredient_vars = []
+    for i in range(len(INGREDIENTS)):
+        var = IntVar()
+        checkbox = Checkbutton(add_recipe, text=INGREDIENTS[i], variable=var)
+        checkbox.pack(anchor=W)
+        ingredient_vars.append(var)
+
+    add_recipe_button = Button(add_recipe, text="Add Recipe", command=lambda: add_recipe_to_list(recipe_name_entry.get(), ingredient_vars,add_recipe))
+    add_recipe_button.pack()
+
+    add_recipe.mainloop()
+
+add_recipe_button = Button(root, text="Add Recipe", command=add_recipe_window)
+add_recipe_button.grid(row=len(INGREDIENTS)+2, column=0, columnspan=2)
+
+def add_recipe_to_list(recipe_name, ingredient_vars,add_recipe):
+    new_recipe_ingredients = [INGREDIENTS[i] for i in range(len(INGREDIENTS)) if ingredient_vars[i].get() == 1]
+    RECIPES[recipe_name] = new_recipe_ingredients
+    add_recipe.destroy()
+
 
 ingredient_vars = []
 for i in range(len(INGREDIENTS)):
