@@ -2,7 +2,11 @@
 
 from tkinter import *
 from difflib import SequenceMatcher 
-from customtkinter import *
+import customtkinter
+
+
+customtkinter.set_appearance_mode("light")  # Modes: system (default), light, dark
+customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
 INGREDIENTS = ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter', 'cocoa powder', 'baking powder', 'vanilla extract', 'spaghetti', 'pancetta', 'parmigiano reggiano', 'pecorino romano', 'black pepper', 'onion', 'garlic', 'chicken or vegetable broth', 'olive oil', 'sugar', 'pepper', 'whole chicken', 'lemon', 'thyme', 'tomatoes', 'bananas', 'baking soda']
 
@@ -24,43 +28,43 @@ def check_recipes():
         if set(ingredients).issubset(set(available_ingredients)):
             compatible_recipes.append(recipe)
     if compatible_recipes:
-        recipe_label.config(text=f"Compatible recipes: {', '.join(compatible_recipes)}")
+        recipe_label.configure(text=f"Compatible recipes: {', '.join(compatible_recipes)}")
     else:
         closest_match = max(RECIPES.keys(), key=lambda x: SequenceMatcher(None, x, ''.join(available_ingredients)).ratio())
         missing_ingredients = set(RECIPES[closest_match]) - set(available_ingredients)
-        recipe_label.config(text=f"No compatible recipes found. \nClosest match: {closest_match}. \nMissing ingredients: {', '.join(missing_ingredients)}")
+        recipe_label.configure(text=f"No compatible recipes found. \nClosest match: {closest_match}. \nMissing ingredients: {', '.join(missing_ingredients)}")
 
     
 
 
-root = Tk()
+root = customtkinter.CTk()
 root.title("Recipe Finder")
-root.geometry ("500x300")
+root.geometry ("400x800")
 
 def add_recipe_window():
     add_recipe = Toplevel(root)
     add_recipe.title("Add Recipe")
-    add_recipe.geometry("400x300")
+    add_recipe.geometry("400x800")
 
-    recipe_name_label = Label(add_recipe, text="Recipe Name:")
+    recipe_name_label = customtkinter.CTkLabel(add_recipe, text="Recipe Name:")
     recipe_name_label.pack()
 
-    recipe_name_entry = Entry(add_recipe)
+    recipe_name_entry = customtkinter.CTkEntry(add_recipe)
     recipe_name_entry.pack()
 
     ingredient_vars = []
     for i in range(len(INGREDIENTS)):
         var = IntVar()
-        checkbox = Checkbutton(add_recipe, text=INGREDIENTS[i], variable=var)
+        checkbox = customtkinter.CTkCheckBox(add_recipe, text=INGREDIENTS[i], variable=var)
         checkbox.pack(anchor=W)
         ingredient_vars.append(var)
 
-    add_recipe_button = Button(add_recipe, text="Add Recipe", command=lambda: add_recipe_to_list(recipe_name_entry.get(), ingredient_vars,add_recipe))
+    add_recipe_button = customtkinter.CTkButton(add_recipe, text="Add Recipe", command=lambda: add_recipe_to_list(recipe_name_entry.get(), ingredient_vars,add_recipe))
     add_recipe_button.pack()
 
     add_recipe.mainloop()
 
-add_recipe_button = Button(root, text="Add Recipe", command=add_recipe_window)
+add_recipe_button = customtkinter.CTkButton(root, text="Add Recipe", command=add_recipe_window)
 add_recipe_button.grid(row=len(INGREDIENTS)+2, column=0, columnspan=2)
 
 def add_recipe_to_list(recipe_name, ingredient_vars,add_recipe):
@@ -72,14 +76,14 @@ def add_recipe_to_list(recipe_name, ingredient_vars,add_recipe):
 ingredient_vars = []
 for i in range(len(INGREDIENTS)):
     var = IntVar()
-    checkbox = Checkbutton(root, text=INGREDIENTS[i], variable=var)
+    checkbox = customtkinter.CTkCheckBox(root, text=INGREDIENTS[i], variable=var)
     checkbox.grid(row=i, column=0, sticky=W)
     ingredient_vars.append(var)
 
-button = Button(root, text="Check Recipes", command=check_recipes)
+button = customtkinter.CTkButton(root, text="Check Recipes", command=check_recipes)
 button.grid(row=len(INGREDIENTS), column=0, columnspan=2)
 
-recipe_label = Label(root, text="")
+recipe_label = customtkinter.CTkLabel(root, text="")
 recipe_label.grid(row=len(INGREDIENTS)+1, column=0, columnspan=2)
 
 root.mainloop()

@@ -1,8 +1,14 @@
-from tkinter import *
-from tkinter import ttk
-from difflib import SequenceMatcher 
+ #In this version, we use the `SequenceMatcher` class from the `difflib` module to find the closest matching recipe. We first create a list of available ingredients, as before. If no compatible recipes are found, we use the `max()` function to find the key in the `RECIPES` dictionary with the highest matching ratio to the available ingredients. The matching ratio is calculated using the `SequenceMatcher` class, which compares the available ingredients to each recipe name and returns a value between 0 and 1 indicating the similarity. When the program is run and no compatible recipes are found, the user will see a message indicating the closest matching recipe based on their available ingredients.
 
-INGREDIENTS = ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter', 'cocoa powder', 'baking powder', 'vanilla extract', 'spaghetti', 'pancetta', 'parmigiano reggiano', 'pecorino romano', 'black pepper', 'onion', 'garlic', 'chicken or vegetable broth', 'olive oil', 'sugar', 'pepper', 'whole chicken', 'lemon', 'thyme', 'tomatoes', 'bananas', 'baking soda']
+from tkinter import *
+from difflib import SequenceMatcher 
+import customtkinter
+
+
+customtkinter.set_appearance_mode("dark")  # Modes: system (default), light, dark
+customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
+
+INGREDIENTS = ['flour', 'sugar', 'salt', 'bananas','D','D','D', 'baking soda']
 
 RECIPES = {
     'Pancakes': ['flour', 'sugar', 'salt', 'eggs', 'milk', 'butter'],
@@ -25,7 +31,7 @@ def check_recipes():
     
 
 
-root = Tk()
+root = customtkinter.CTk()
 root.title("Recipe Finder")
 root.geometry ("500x300")
 
@@ -34,34 +40,25 @@ def add_recipe_window():
     add_recipe.title("Add Recipe")
     add_recipe.geometry("400x300")
 
-    recipe_name_label = Label(add_recipe, text="Recipe Name:")
+    recipe_name_label = customtkinter.CTkLabel(add_recipe, text="Recipe Name:")
     recipe_name_label.pack()
 
-    recipe_name_entry = Entry(add_recipe)
+    recipe_name_entry = customtkinter.CTkEntry(add_recipe)
     recipe_name_entry.pack()
-
-    scrollbar = ttk.Scrollbar(add_recipe)
-    scrollbar.pack(side=RIGHT, fill=Y)
-
-    ingredients_frame = Frame(add_recipe)
-    ingredients_frame.pack(fill=BOTH, expand=True)
 
     ingredient_vars = []
     for i in range(len(INGREDIENTS)):
         var = IntVar()
-        checkbox = Checkbutton(ingredients_frame, text=INGREDIENTS[i], variable=var)
+        checkbox = customtkinter.CTkCheckBox(add_recipe, text=INGREDIENTS[i], variable=var)
         checkbox.pack(anchor=W)
         ingredient_vars.append(var)
 
-    ingredients_frame.config(yscrollcommand=scrollbar.set)
-    scrollbar.config(command=ingredients_frame.yview)
-
-    add_recipe_button = Button(add_recipe, text="Add Recipe", command=lambda: add_recipe_to_list(recipe_name_entry.get(), ingredient_vars,add_recipe))
+    add_recipe_button = customtkinter.CTkButton(add_recipe, text="Add Recipe", command=lambda: add_recipe_to_list(recipe_name_entry.get(), ingredient_vars,add_recipe))
     add_recipe_button.pack()
 
     add_recipe.mainloop()
 
-add_recipe_button = Button(root, text="Add Recipe", command=add_recipe_window)
+add_recipe_button = customtkinter.CTkButton(root, text="Add Recipe", command=add_recipe_window)
 add_recipe_button.grid(row=len(INGREDIENTS)+2, column=0, columnspan=2)
 
 def add_recipe_to_list(recipe_name, ingredient_vars,add_recipe):
@@ -70,19 +67,17 @@ def add_recipe_to_list(recipe_name, ingredient_vars,add_recipe):
     add_recipe.destroy()
 
 
-
 ingredient_vars = []
 for i in range(len(INGREDIENTS)):
     var = IntVar()
-    checkbox = Checkbutton(root, text=INGREDIENTS[i], variable=var)
+    checkbox = customtkinter.CTkCheckBox(root, text=INGREDIENTS[i], variable=var)
     checkbox.grid(row=i, column=0, sticky=W)
     ingredient_vars.append(var)
 
-button = Button(root, text="Check Recipes", command=check_recipes)
+button = customtkinter.CTkButton(root, text="Check Recipes", command=check_recipes)
 button.grid(row=len(INGREDIENTS), column=0, columnspan=2)
 
 recipe_label = Label(root, text="")
 recipe_label.grid(row=len(INGREDIENTS)+1, column=0, columnspan=2)
 
 root.mainloop()
-
