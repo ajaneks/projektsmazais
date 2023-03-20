@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
+from PIL import Image, ImageTk
 
 # Sample recipe data
 recipes = {
@@ -8,19 +9,32 @@ recipes = {
     "Grilled Cheese": {"bread", "butter", "cheese"},
 }
 
-class RecipeApp(ctk.CTk):
+#klase prieks ikonas
+class CustomCTk(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        self.iconbitmap("")
+
+class RecipeApp(CustomCTk):
     def __init__(self):
         super().__init__()
 
-        self.configure(bg="#2b2b2b")  # Set the background color of the main window
+        self.configure(bg="white")  # Set the background color of the main window
         self.title("Recipe Generator")
 
+        
         self.side_buttons = ttk.Frame(self)
         self.side_buttons.pack(side="left", fill="y")
 
-        self.logo_image = tk.PhotoImage(file="lasagna.png",height=150,width=150)
-        self.logo_label = tk.Label(self.side_buttons, image=self.logo_image, bg="#2b2b2b")
-        self.logo_label.pack(pady=(10, 20))
+        image = Image.open("lasagna2.png")
+        resized_image = image.resize((150, 150), Image.ANTIALIAS)
+        self.logo_image = ImageTk.PhotoImage(resized_image)
+        self.logo_label = tk.Label(self.side_buttons, image=self.logo_image, bg="white")
+        self.logo_label.pack(pady=(10, 20), anchor="center")
+
+        icon_image = resized_image.copy()
+        self.icon_photo = ImageTk.PhotoImage(icon_image)
+        self.iconphoto(True, self.icon_photo)
 
         self.home_button = ctk.CTkButton(self.side_buttons, text="Home", command=lambda: self.notebook.select(self.tab1), corner_radius=5)
         self.home_button.pack(fill="x", padx=5, pady=5)
@@ -31,9 +45,14 @@ class RecipeApp(ctk.CTk):
         self.add_recipe_button = ctk.CTkButton(self.side_buttons, text="Add Recipe", command=lambda: self.notebook.select(self.tab3), corner_radius=5)
         self.add_recipe_button.pack(fill="x", padx=5, pady=5)
 
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(side="left", fill="both", expand=True)
+        # Create a custom style for the notebook
+        style = ttk.Style()
+        style.configure("Hidden.TNotebook", tabmargins=0)
+        style.layout("Hidden.TNotebook.Tab", [])
 
+        self.notebook = ttk.Notebook(self, style="Hidden.TNotebook")
+        self.notebook.pack(side="left", fill="both", expand=True)
+        
         self.tab1 = Home(self.notebook)
         self.tab2 = IngredientCheck(self.notebook)
         self.tab3 = AddRecipe(self.notebook)
