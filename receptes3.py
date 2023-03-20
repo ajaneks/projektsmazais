@@ -2,36 +2,33 @@ import tkinter as tk
 from tkinter import ttk
 import customtkinter as ctk
 
-
 # Sample recipe data
 recipes = {
     "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
     "Grilled Cheese": {"bread", "butter", "cheese"},
 }
 
-class RecipeApp(tk.Tk):
+class RecipeApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        self.configure(bg="#2b2b2b")  # Set the background color of the main window
         self.title("Recipe Generator")
-
-        # Create a style object to hide the tabs
-        style = ttk.Style()
-        style.layout("TNotebook.Tab", [])
 
         self.side_buttons = ttk.Frame(self)
         self.side_buttons.pack(side="left", fill="y")
 
-        self.home_button = ctk.CTkButton(self.side_buttons, text="Home", command=lambda: self.notebook.select(self.tab1),
-                                         bg_color="#2b2b2b", fg_color="white", hover_color="#1e1e1e", corner_radius=5)
+        self.logo_image = tk.PhotoImage(file="lasagna.png",height=150,width=150)
+        self.logo_label = tk.Label(self.side_buttons, image=self.logo_image, bg="#2b2b2b")
+        self.logo_label.pack(pady=(10, 20))
+
+        self.home_button = ctk.CTkButton(self.side_buttons, text="Home", command=lambda: self.notebook.select(self.tab1), corner_radius=5)
         self.home_button.pack(fill="x", padx=5, pady=5)
 
-        self.ingredient_check_button = ctk.CTkButton(self.side_buttons, text="Ingredient Check", command=lambda: self.notebook.select(self.tab2),
-                                                     bg_color="#2b2b2b", fg_color="white", hover_color="#1e1e1e", corner_radius=5)
+        self.ingredient_check_button = ctk.CTkButton(self.side_buttons, text="Ingredient Check", command=lambda: self.notebook.select(self.tab2),corner_radius=5)
         self.ingredient_check_button.pack(fill="x", padx=5, pady=5)
 
-        self.add_recipe_button = ctk.CTkButton(self.side_buttons, text="Add Recipe", command=lambda: self.notebook.select(self.tab3),
-                                               bg_color="#2b2b2b", fg_color="white", hover_color="#1e1e1e", corner_radius=5)
+        self.add_recipe_button = ctk.CTkButton(self.side_buttons, text="Add Recipe", command=lambda: self.notebook.select(self.tab3), corner_radius=5)
         self.add_recipe_button.pack(fill="x", padx=5, pady=5)
 
         self.notebook = ttk.Notebook(self)
@@ -164,10 +161,12 @@ class AddRecipe(ttk.Frame):
         self.add_recipe_button = ctk.CTkButton(self, text="Add Recipe", command=self.add_recipe)
         self.add_recipe_button.grid(row=2, column=0, columnspan=2, pady=10)
 
+        self.result = ttk.Label(self, text="", wraplength=300)  # Set the wraplength to your desired value
+        self.result.grid(row=3, column=0, columnspan=2, pady=10)
 
     def add_recipe(self):
-        recipe_name = self.recipe_name.get().strip()
-        ingredients = set(map(str.strip, self.ingredients.get().split(',')))
+        recipe_name = self.recipe_name_entry.get().strip()
+        ingredients = set(map(str.strip, self.ingredients_entry.get().split(',')))
 
         if recipe_name and ingredients:
             recipes[recipe_name] = ingredients
@@ -178,6 +177,8 @@ class AddRecipe(ttk.Frame):
             ingredient_check_tab.update_ingredient_checkboxes()
         else:
             self.result["text"] = "Please enter a valid recipe name and ingredients."
+
+
 def main():
     app = RecipeApp()
     app.mainloop()
