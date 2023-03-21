@@ -3,12 +3,6 @@ from tkinter import ttk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 
-# Sample recipe data
-# recipes = {
-#     "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
-#     "Grilled Cheese": {"bread", "butter", "cheese"},
-# }
-
 def load_recipes(file_name):
     recipes = {}
     with open(file_name, "r") as file:
@@ -18,7 +12,7 @@ def load_recipes(file_name):
                 recipe_data, instructions = line.split("|")
                 recipe_name, ingredients_str = recipe_data.split(":")
                 ingredients = set(map(str.strip, ingredients_str.split(",")))
-                recipes[recipe_name] = (ingredients, instructions)  # Store instructions as well
+                recipes[recipe_name] = (ingredients, instructions) 
     return recipes
 
 
@@ -35,7 +29,7 @@ class RecipeApp(CustomCTk):
     def __init__(self):
         super().__init__()
 
-        self.configure(bg="white")  # Set the background color of the main window
+        self.configure(bg="white")  
         self.title("Recipe Generator")
 
         
@@ -61,7 +55,6 @@ class RecipeApp(CustomCTk):
         self.add_recipe_button = ctk.CTkButton(self.side_buttons, text="Add Recipe", command=lambda: self.notebook.select(self.tab3), corner_radius=5)
         self.add_recipe_button.pack(fill="x", padx=5, pady=5)
         
-        # Create a custom style for the notebook
         style = ttk.Style()
         style.configure("Hidden.TNotebook", tabmargins=0)
         style.layout("Hidden.TNotebook.Tab", [])
@@ -120,8 +113,15 @@ class IngredientCheck(ttk.Frame):
         self.generate_button = ctk.CTkButton(self, text="Generate Recipe", command=self.generate_recipe)
         self.generate_button.grid(row=1, column=0, pady=10)
 
-        self.result = ttk.Label(self, text="", wraplength=300)  # Set the wraplength to your desired value
-        self.result.grid(row=2, column=0, pady=10)
+        self.result_frame = ttk.Frame(self)
+        self.result_frame.grid(row=2, column=0, pady=10)
+
+        self.result = tk.Text(self.result_frame, wrap=tk.WORD, width=40, height=10, state='disabled')
+        self.result.pack(side="left", fill="both")
+
+        self.result_scrollbar = ttk.Scrollbar(self.result_frame, orient="vertical", command=self.result.yview)
+        self.result_scrollbar.pack(side="right", fill="y")
+        self.result.config(yscrollcommand=self.result_scrollbar.set, bg="white") 
 
     def generate_recipe(self):
         selected_ingredients = [chk["text"] for chk, var in self.check_boxes if var.get()]
@@ -132,17 +132,22 @@ class IngredientCheck(ttk.Frame):
 
         possible_recipes = []
 
-        for recipe, (ingredients, _) in recipes.items():
+        for recipe, recipe_data in recipes.items():
+            ingredients, instructions = recipe_data
             if set(selected_ingredients).issuperset(ingredients):
-                possible_recipes.append(recipe)
+                possible_recipes.append((recipe, instructions))
 
         if possible_recipes:
-            recipe_name = possible_recipes[0]
-            _, instructions = recipes[recipe_name]
-            self.result["text"] = f"Recipe: {recipe_name}\nInstructions: {instructions}"
+            result_text = "\n".join([f"{recipe}: {instructions}" for recipe, instructions in possible_recipes])
+            self.update_result_text("Recipes:\n" + result_text)
         else:
-            self.result["text"] = self.closest_recipe(selected_ingredients)
+            self.update_result_text(self.closest_recipe(selected_ingredients))
 
+    def update_result_text(self, text):
+        self.result.config(state='normal')
+        self.result.delete(1.0, tk.END)
+        self.result.insert(tk.END, text)
+        self.result.config(state='disabled')
 
 
     def closest_recipe(self, selected_ingredients):
@@ -151,8 +156,9 @@ class IngredientCheck(ttk.Frame):
         closest_recipe = None
         missing_ingredients = None
 
-        for recipe, ingredients in recipes.items():
-            missing = ingredients[0] - set(selected_ingredients)
+        for recipe, recipe_data in recipes.items():  
+            ingredients, _ = recipe_data  
+            missing = ingredients - set(selected_ingredients)
             missing_count = len(missing)
             matching_count = len(ingredients) - missing_count
 
@@ -163,6 +169,7 @@ class IngredientCheck(ttk.Frame):
                 missing_ingredients = missing
 
         return f"Closest recipe: {closest_recipe}. Missing ingredients: {', '.join(missing_ingredients)}"
+
 
     def update_ingredient_checkboxes(self):
         self.ingredients_list = sorted(set.union(*recipes.values()))
@@ -200,26 +207,22 @@ class AddRecipe(ttk.Frame):
         self.add_recipe_button = ctk.CTkButton(self, text="Add Recipe", command=self.add_recipe)
         self.add_recipe_button.grid(row=2, column=0, columnspan=2, pady=10)
 
-        self.result = ttk.Label(self, text="", wraplength=300)  # Set the wraplength to your desired value
+        self.result = ttk.Label(self, text="", wraplength=300) 
         self.result.grid(row=3, column=0, columnspan=2, pady=10)
 
-    def generate_recipe(self):
-        selected_ingredients = [chk["text"] for chk, var in self.check_boxes if var.get()]
+    def add_recipe(self):  
+        recipe_name = self.recipe_name_entry.get().strip()
+        ingredients = set(map(str.strip, self.ingredients_entry.get().split(',')))
 
-        if not selected_ingredients:
-            self.result.config(text="No ingredients selected. Please select at least one ingredient.")
-            return
+        if recipe_name and ingredients:
+            recipes[recipe_name] = (ingredients, self.ingredients_entry.get().strip())
+            self.result["text"] = f"{recipe_name} added successfully!"
 
-        possible_recipes = []
-
-        for recipe, ingredients in recipes.items():
-            if set(selected_ingredients).issuperset(ingredients[0]):  # change this line
-                possible_recipes.append(recipe)
-
-        if possible_recipes:
-            self.result["text"] = "Recipes: " + ", ".join(possible_recipes)
+            
+            ingredient_check_tab = self.master.nametowidget(self.master.tabs()[1])
+            ingredient_check_tab.update_ingredient_checkboxes()
         else:
-            self.result["text"] = self.closest_recipe(selected_ingredients)
+            self.result["text"] = "Please enter a valid recipe name and ingredients."
 
 def main():
     app = RecipeApp()

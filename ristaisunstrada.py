@@ -22,6 +22,8 @@ def load_recipes(file_name):
     return recipes
 
 
+
+
 # Load recipes from the text file
 recipes = load_recipes("recipes.txt")
 
@@ -132,14 +134,14 @@ class IngredientCheck(ttk.Frame):
 
         possible_recipes = []
 
-        for recipe, (ingredients, _) in recipes.items():
+        for recipe, recipe_data in recipes.items():
+            ingredients, instructions = recipe_data
             if set(selected_ingredients).issuperset(ingredients):
-                possible_recipes.append(recipe)
+                possible_recipes.append((recipe, instructions))
 
         if possible_recipes:
-            recipe_name = possible_recipes[0]
-            _, instructions = recipes[recipe_name]
-            self.result["text"] = f"Recipe: {recipe_name}\nInstructions: {instructions}"
+            result_text = "\n".join([f"{recipe}: {instructions}" for recipe, instructions in possible_recipes])
+            self.result["text"] = "Recipes:\n" + result_text
         else:
             self.result["text"] = self.closest_recipe(selected_ingredients)
 
@@ -151,8 +153,9 @@ class IngredientCheck(ttk.Frame):
         closest_recipe = None
         missing_ingredients = None
 
-        for recipe, ingredients in recipes.items():
-            missing = ingredients[0] - set(selected_ingredients)
+        for recipe, recipe_data in recipes.items():  # Update this line
+            ingredients, _ = recipe_data  # Add this line
+            missing = ingredients - set(selected_ingredients)
             missing_count = len(missing)
             matching_count = len(ingredients) - missing_count
 
@@ -163,6 +166,7 @@ class IngredientCheck(ttk.Frame):
                 missing_ingredients = missing
 
         return f"Closest recipe: {closest_recipe}. Missing ingredients: {', '.join(missing_ingredients)}"
+
 
     def update_ingredient_checkboxes(self):
         self.ingredients_list = sorted(set.union(*recipes.values()))
@@ -203,23 +207,19 @@ class AddRecipe(ttk.Frame):
         self.result = ttk.Label(self, text="", wraplength=300)  # Set the wraplength to your desired value
         self.result.grid(row=3, column=0, columnspan=2, pady=10)
 
-    def generate_recipe(self):
-        selected_ingredients = [chk["text"] for chk, var in self.check_boxes if var.get()]
+    def add_recipe(self):  # change this line
+        recipe_name = self.recipe_name_entry.get().strip()
+        ingredients = set(map(str.strip, self.ingredients_entry.get().split(',')))
 
-        if not selected_ingredients:
-            self.result.config(text="No ingredients selected. Please select at least one ingredient.")
-            return
+        if recipe_name and ingredients:
+            recipes[recipe_name] = (ingredients, self.instructions_entry.get().strip())  # update this line
+            self.result["text"] = f"{recipe_name} added successfully!"
 
-        possible_recipes = []
-
-        for recipe, ingredients in recipes.items():
-            if set(selected_ingredients).issuperset(ingredients[0]):  # change this line
-                possible_recipes.append(recipe)
-
-        if possible_recipes:
-            self.result["text"] = "Recipes: " + ", ".join(possible_recipes)
+            # Update ingredient checkboxes
+            ingredient_check_tab = self.master.nametowidget(self.master.tabs()[1])
+            ingredient_check_tab.update_ingredient_checkboxes()
         else:
-            self.result["text"] = self.closest_recipe(selected_ingredients)
+            self.result["text"] = "Please enter a valid recipe name and ingredients."
 
 def main():
     app = RecipeApp()
