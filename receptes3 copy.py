@@ -4,10 +4,28 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 
 # Sample recipe data
-recipes = {
-    "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
-    "Grilled Cheese": {"bread", "butter", "cheese"},
-}
+# recipes = {
+#     "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
+#     "Grilled Cheese": {"bread", "butter", "cheese"},
+# }
+
+# Load recipes from a text file
+def load_recipes(file_name):
+    recipes = {}
+    with open(file_name, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                recipe_data, instructions = line.split("|")
+                recipe_name, ingredients_str = recipe_data.split(":")
+                ingredients = set(map(str.strip, ingredients_str.split(",")))
+                recipes[recipe_name] = ingredients
+    return recipes
+
+
+# Load recipes from the text file
+recipes = load_recipes("recipes.txt")
+
 
 #klase prieks ikonas
 class CustomCTk(ctk.CTk):
@@ -44,7 +62,7 @@ class RecipeApp(CustomCTk):
 
         self.add_recipe_button = ctk.CTkButton(self.side_buttons, text="Add Recipe", command=lambda: self.notebook.select(self.tab3), corner_radius=5)
         self.add_recipe_button.pack(fill="x", padx=5, pady=5)
-        
+
         # Create a custom style for the notebook
         style = ttk.Style()
         style.configure("Hidden.TNotebook", tabmargins=0)
@@ -52,6 +70,7 @@ class RecipeApp(CustomCTk):
 
         self.notebook = ttk.Notebook(self, style="Hidden.TNotebook")
         self.notebook.pack(side="left", fill="both", expand=True)
+
         self.tab1 = Home(self.notebook)
         self.tab2 = IngredientCheck(self.notebook)
         self.tab3 = AddRecipe(self.notebook)
@@ -78,7 +97,7 @@ class IngredientCheck(ttk.Frame):
         super().__init__(container)
 
         self.check_boxes = []
-        self.ingredients_list = sorted(set.union(*recipes.values()))
+        self.ingredients_list = sorted(set.union(*(recipe for recipe in recipes.values())))
 
         self.canvas = tk.Canvas(self, highlightthickness=0)
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
@@ -116,19 +135,19 @@ class IngredientCheck(ttk.Frame):
 
         possible_recipes = []
 
-        for recipe, ingredients in recipes.items():
-            if set(selected_ingredients).issuperset(ingredients):
+        for recipe, data in recipes.items():
+            if set(selected_ingredients).issuperset(data["ingredients"]):
                 possible_recipes.append(recipe)
 
         if possible_recipes:
-            self.result["text"] = "Recipes: " + ", ".join(possible_recipes)
+            chosen_recipe = possible_recipes[0]
+            instructions = recipes[chosen_recipe]["instructions"]
+            self.result["text"] = f"Recipe: {chosen_recipe}\n\nIngredients: {', '.join(recipes[chosen_recipe]['ingredients'])}\n\nInstructions:\n{instructions}"
         else:
             self.result["text"] = self.closest_recipe(selected_ingredients)
 
 
-
     def closest_recipe(self, selected_ingredients):
-        max_matching_count = -1
         min_missing_count = float('inf')
         closest_recipe = None
         missing_ingredients = None
@@ -136,10 +155,8 @@ class IngredientCheck(ttk.Frame):
         for recipe, ingredients in recipes.items():
             missing = ingredients - set(selected_ingredients)
             missing_count = len(missing)
-            matching_count = len(ingredients) - missing_count
 
-            if matching_count > max_matching_count or (matching_count == max_matching_count and missing_count < min_missing_count):
-                max_matching_count = matching_count
+            if missing_count < min_missing_count:
                 min_missing_count = missing_count
                 closest_recipe = recipe
                 missing_ingredients = missing
