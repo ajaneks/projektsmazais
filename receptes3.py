@@ -4,10 +4,26 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 
 # Sample recipe data
-recipes = {
-    "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
-    "Grilled Cheese": {"bread", "butter", "cheese"},
-}
+# recipes = {
+#     "Pasta": {"pasta", "tomato sauce", "olive oil", "garlic", "salt", "pepper"},
+#     "Grilled Cheese": {"bread", "butter", "cheese"},
+# }
+
+def load_recipes(file_name):
+    recipes = {}
+    with open(file_name, "r") as file:
+        for line in file:
+            line = line.strip()
+            if line:
+                recipe_data, instructions = line.split("|")
+                recipe_name, ingredients_str = recipe_data.split(":")
+                ingredients = set(map(str.strip, ingredients_str.split(",")))
+                recipes[recipe_name] = ingredients
+    return recipes
+
+
+# Load recipes from the text file
+recipes = load_recipes("recipes.txt")
 
 #klase prieks ikonas
 class CustomCTk(ctk.CTk):
